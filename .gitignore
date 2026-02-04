@@ -71,3 +71,6 @@ USER.md
 
 # local tooling
 .serena/
+
+# nohup output files
+nohup.out
