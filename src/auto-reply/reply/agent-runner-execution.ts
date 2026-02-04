@@ -100,8 +100,14 @@ export async function runAgentTurnWithFallback(params: {
 
   while (true) {
     try {
+      // Allow partial stream during reasoning stream if the channel explicitly
+      // provides both callbacks (indicates concurrent streaming support).
+      const hasConcurrentStreamingSupport =
+        params.opts?.onPartialReply && params.opts?.onReasoningStream;
       const allowPartialStream = !(
-        params.followupRun.run.reasoningLevel === "stream" && params.opts?.onReasoningStream
+        params.followupRun.run.reasoningLevel === "stream" &&
+        params.opts?.onReasoningStream &&
+        !hasConcurrentStreamingSupport
       );
       const normalizeStreamingText = (payload: ReplyPayload): { text?: string; skip: boolean } => {
         if (!allowPartialStream) {
