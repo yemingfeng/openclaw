@@ -312,6 +312,24 @@ export async function processFeishuMessage(
           return;
         }
 
+        // Handle tool messages - send immediately as text messages
+        if (info?.kind === "tool") {
+          if (hasMedia && streamingSession?.isActive()) {
+            await streamingSession.close();
+            streamingStarted = false;
+          }
+          await sendMessageFeishu(
+            client,
+            chatId,
+            { text: payload.text ?? "" },
+            {
+              msgType: "text",
+              receiveIdType: "chat_id",
+            },
+          );
+          return;
+        }
+
         // Handle block replies - update streaming card with partial text
         if (streamingSession?.isActive() && info?.kind === "block" && payload.text) {
           logger.debug(`Updating streaming card with block text: ${payload.text.length} chars`);
